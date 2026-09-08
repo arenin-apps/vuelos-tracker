@@ -3,8 +3,8 @@
   "estadiaDias": 14,
   "offsetsDias": [21, 55, 91],
   "ruta": {
-    "origen": "BUE",
-    "destino": "LON",
+    "origen": "EZE",
+    "destino": "LHR",
     "origenNombre": "Buenos Aires",
     "destinoNombre": "Londres"
   }
