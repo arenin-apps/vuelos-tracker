@@ -107,7 +107,7 @@ function armarUrl({ apiKey, origen, destino, salidaStr, regresoStr, departureTok
     + `&arrival_id=${destino}`
     + `&outbound_date=${salidaStr}`
     + `&return_date=${regresoStr}`
-    + '&currency=GBP&hl=es&type=1'
+    + '&currency=GBP&hl=es&type=1&sort_by=2'
     + `&api_key=${apiKey}`;
   if (departureToken) url += `&departure_token=${encodeURIComponent(departureToken)}`;
   return url;
