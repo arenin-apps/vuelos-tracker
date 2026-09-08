@@ -1,0 +1,43 @@
+name: Actualizar vuelos
+
+on:
+  schedule:
+    # GitHub Actions retrasa bastante los cron en cuentas gratuitas — en la
+    # práctica los workflows de este mismo tipo (ver yerba-mate-tracker)
+    # arrancaban 3-4 horas tarde. Para que esté listo a las 8am hora UK, lo
+    # disparamos bastante antes para absorber ese retraso.
+    # 02:00 UTC = 03:00 en Londres en horario de verano (BST). Ajustar a
+    # 01:00 UTC cuando vuelva el horario de invierno (GMT) en octubre, para
+    # seguir siendo las 02:00 hora local y mantener el mismo colchón.
+    - cron: '0 2 * * *'
+  workflow_dispatch:       # botón para lanzarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Consultar vuelos en SerpApi (Google Flights)
+        run: node scripts/actualizar-vuelos.mjs
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+
+      - name: Guardar cambios si los hay
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/vuelos.json
+          if git diff --staged --quiet; then
+            echo "Sin cambios de precio hoy."
+          else
+            git commit -m "Vuelos del $(date -u +%d-%m-%Y)"
+            git push
+          fi
