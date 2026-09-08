@@ -1,0 +1,189 @@
+/* Vuelos Tracker — estilos propios, paleta oscura (cielo/aviación).
+   Todo va dentro de .vt para no chocar con el CSS del resto de arenin.uk */
+
+.vt {
+  /* Fondos: del más oscuro (la página) al más claro (tarjetas y filas) */
+  --fondo: #0b1420;
+  --panel: #121f30;
+  --panel-alto: #1a2c42;
+  --linea: #25384f;
+
+  /* Texto */
+  --texto: #e9f0f7;
+  --texto-suave: #93a6bc;
+
+  /* Azules de marca */
+  --cielo: #3f7fbf;
+  --cielo-claro: #6fa8dc;
+
+  /* Naranja despegue, el acento */
+  --despegue: #f0a860;
+  --despegue-fuerte: #d68a3d;
+
+  --radio: 14px;
+
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  background: var(--fondo);
+  color: var(--texto);
+  color-scheme: dark;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.vt *, .vt *::before, .vt *::after { box-sizing: inherit; }
+.vt h1, .vt h2, .vt p, .vt ul, .vt fieldset { margin: 0; }
+.vt ul { list-style: none; padding: 0; }
+.vt fieldset { border: 0; padding: 0; }
+.vt :focus-visible { outline: 2px solid var(--despegue); outline-offset: 2px; border-radius: 6px; }
+
+.vt-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* --- Cabecera --- */
+.vt-hero {
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(240,168,96,.14), transparent 60%),
+    linear-gradient(150deg, #1c3350, #0d1826);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 30px 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+.vt-hero__text { max-width: 46rem; }
+.vt-eyebrow {
+  font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--despegue); margin-bottom: 10px;
+}
+.vt-hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.35rem); font-weight: 800;
+  letter-spacing: -.02em; color: #fff;
+}
+.vt-lede { color: var(--texto-suave); margin-top: 10px; font-size: 15px; }
+
+.vt-status {
+  background: rgba(0,0,0,.28);
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 230px;
+}
+.vt-status__label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--texto-suave); font-weight: 700;
+}
+.vt-status__date { font-weight: 600; margin: 4px 0 8px; font-size: 14px; }
+.vt-badge {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px;
+  background: rgba(255,255,255,.1); color: var(--texto);
+}
+.vt-badge[data-state="fresh"] { background: rgba(111,168,220,.22); color: var(--cielo-claro); }
+.vt-badge[data-state="stale"] { background: rgba(240,168,96,.18); color: var(--despegue); }
+.vt-badge[data-state="error"] { background: rgba(217,110,110,.18); color: #e79191; }
+
+/* --- Cuerpo --- */
+.vt-main { display: grid; gap: 16px; min-width: 0; }
+
+.vt-card {
+  background: var(--panel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 20px;
+}
+.vt-card--flush { padding: 0; overflow: hidden; }
+.vt-card__title { font-size: 16px; font-weight: 800; letter-spacing: -.01em; color: #fff; }
+
+.vt-label {
+  display: block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--texto-suave); margin: 0 0 6px;
+}
+
+.vt-select {
+  padding: 9px 11px; font: inherit; font-size: 14px;
+  border: 1px solid var(--linea); border-radius: 9px;
+  background: #0f1826; color: var(--texto); width: auto;
+}
+
+.vt-switch {
+  display: flex; gap: 8px; align-items: center;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.vt-switch input { accent-color: var(--despegue); width: 15px; height: 15px; }
+.vt-note { font-size: 12px; color: var(--texto-suave); margin-top: 6px; }
+
+/* --- Tabla --- */
+.vt-table-head {
+  display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: flex-end;
+  padding: 20px; border-bottom: 1px solid var(--linea); background: var(--panel-alto);
+}
+.vt-controls { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.vt-sort { display: flex; gap: 8px; align-items: center; }
+.vt-sort .vt-label { margin: 0; }
+
+.vt-table-wrap { overflow-x: auto; }
+.vt-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.vt-table th {
+  text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--texto-suave); padding: 12px 14px; border-bottom: 1px solid var(--linea); white-space: nowrap;
+}
+.vt-table td { padding: 13px 14px; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: middle; }
+.vt-table tbody tr:hover { background: var(--panel-alto); }
+.vt-num, .vt-table td.vt-num { text-align: right; font-family: "IBM Plex Mono", monospace; }
+
+.vt-fecha { font-weight: 600; color: #fff; }
+.vt-price { font-weight: 700; font-size: 15px; color: #fff; }
+.vt-escalas--directo { color: var(--cielo-claro); font-weight: 700; }
+
+.vt-tag {
+  display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; padding: 2px 7px; border-radius: 6px;
+  background: rgba(255,255,255,.06); border: 1px solid var(--linea); color: var(--texto);
+  white-space: nowrap;
+}
+
+.vt-go {
+  display: inline-block; font-size: 12px; font-weight: 700; text-decoration: none;
+  padding: 7px 12px; border-radius: 9px;
+  background: var(--despegue); color: #1a2412; white-space: nowrap;
+}
+.vt-go:hover { background: var(--despegue-fuerte); }
+
+.vt-empty, .vt-error { padding: 44px 20px; text-align: center; }
+.vt-empty__title { font-weight: 700; color: #fff; }
+.vt-disclaimer { font-size: 12px; color: var(--texto-suave); }
+
+@media (max-width: 620px) {
+  .vt-table thead { display: none; }
+  .vt-table tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px; border-bottom: 1px solid var(--linea); }
+  .vt-table td { border: 0; padding: 0; }
+  .vt-table td[data-col="fechas"] { grid-column: 1 / -1; }
+  .vt-table td.vt-num { text-align: left; }
+  .vt-table td[data-col="link"] { grid-row: span 4; align-self: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt * { transition: none !important; animation: none !important; }
+}
+
+/* La página que aloja la app también en oscuro. */
+body { background: #0b1420; margin: 0; }
+
+/* --- Selector de idioma --- */
+.vt-hero__side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.vt-lang {
+  font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+  padding: 6px 14px; border-radius: 999px;
+  background: transparent; color: var(--despegue);
+  border: 1px solid rgba(240,168,96,.45);
+}
+.vt-lang:hover { background: var(--despegue); border-color: var(--despegue); color: #1a2412; }
