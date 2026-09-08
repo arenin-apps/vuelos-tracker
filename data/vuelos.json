@@ -1,6 +1,38 @@
 {
-  "actualizado": null,
+  "actualizado": "2026-09-08T16:37:48.988Z",
   "fuentesConError": [],
-  "ruta": { "origen": "BUE", "destino": "LOND" },
-  "items": []
+  "ruta": {
+    "origen": "EZE",
+    "destino": "LHR"
+  },
+  "estadiaDias": 14,
+  "items": [
+    {
+      "salida": "2026-09-29",
+      "regreso": "2026-10-13",
+      "precio": 1313,
+      "aerolinea": "Air France",
+      "escalas": 1,
+      "duracionMin": 1175,
+      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-09-29%20through%202026-10-13"
+    },
+    {
+      "salida": "2026-11-02",
+      "regreso": "2026-11-16",
+      "precio": 911,
+      "aerolinea": "ITA",
+      "escalas": 1,
+      "duracionMin": 1825,
+      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-11-02%20through%202026-11-16"
+    },
+    {
+      "salida": "2026-12-08",
+      "regreso": "2026-12-22",
+      "precio": 1064,
+      "aerolinea": "Iberia",
+      "escalas": 1,
+      "duracionMin": 1720,
+      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-12-08%20through%202026-12-22"
+    }
+  ]
 }
