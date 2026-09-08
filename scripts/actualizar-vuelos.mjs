@@ -29,10 +29,23 @@ async function pedirJson(url, intentos = 3) {
       const t = setTimeout(() => ctrl.abort(), 25000);
       const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' }, signal: ctrl.signal });
       clearTimeout(t);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        // SerpApi (y la mayoría de APIs) mandan el detalle del error en el
+        // cuerpo JSON incluso en 4xx/5xx: lo leemos para saber qué pasó
+        // en vez de quedarnos solo con el código HTTP.
+        let detalle = '';
+        try { detalle = JSON.stringify(await res.json()); } catch { /* cuerpo no era JSON */ }
+        const err = new Error(`HTTP ${res.status}${detalle ? ' - ' + detalle : ''}`);
+        err.status = res.status;
+        throw err;
+      }
       return await res.json();
     } catch (err) {
       ultimoError = err;
+      // Un 4xx es un error del pedido (parámetros mal armados, clave
+      // inválida, etc.): reintentar no lo va a arreglar y solo gasta cuota
+      // de SerpApi. Solo reintentamos ante fallos transitorios (red, 5xx, 429).
+      if (err.status && err.status >= 400 && err.status < 500 && err.status !== 429) throw err;
       // Espera creciente: 3s, 6s. Siempre acaba, nunca da vueltas infinitas.
       if (n < intentos) await new Promise(r => setTimeout(r, 3000 * n));
     }
