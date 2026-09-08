@@ -100,11 +100,11 @@ function vueloMasBarato(data) {
 // required if type is 1"). El primer paso devuelve un "departure_token" por
 // cada opción de ida; repitiendo el mismo pedido con ese token en el
 // segundo paso se obtiene el precio del viaje completo ida y vuelta.
-function armarUrl({ apiKey, ruta, salidaStr, regresoStr, departureToken }) {
+function armarUrl({ apiKey, origen, destino, salidaStr, regresoStr, departureToken }) {
   let url = 'https://serpapi.com/search.json'
     + '?engine=google_flights'
-    + `&departure_id=${ruta.origen}`
-    + `&arrival_id=${ruta.destino}`
+    + `&departure_id=${origen}`
+    + `&arrival_id=${destino}`
     + `&outbound_date=${salidaStr}`
     + `&return_date=${regresoStr}`
     + '&currency=GBP&hl=es&type=1'
@@ -113,14 +113,9 @@ function armarUrl({ apiKey, ruta, salidaStr, regresoStr, departureToken }) {
   return url;
 }
 
-async function googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy }) {
-  const salida = sumarDias(hoy, offsetDias);
-  const regreso = sumarDias(salida, estadiaDias);
-  const salidaStr = formatearFecha(salida);
-  const regresoStr = formatearFecha(regreso);
-
+async function buscarConCodigos({ apiKey, origen, destino, salidaStr, regresoStr }) {
   // Paso 1: búsqueda normal, para conseguir el departure_token de una opción de ida.
-  const idaData = await pedirJson(armarUrl({ apiKey, ruta, salidaStr, regresoStr }));
+  const idaData = await pedirJson(armarUrl({ apiKey, origen, destino, salidaStr, regresoStr }));
   if (idaData.error) throw new Error(`SerpApi (ida): ${idaData.error}`);
 
   const candidatosIda = [...(idaData.best_flights || []), ...(idaData.other_flights || [])];
@@ -129,23 +124,53 @@ async function googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy }) {
 
   // Paso 2: mismo pedido + el departure_token del paso 1, que ya devuelve
   // el precio del viaje completo ida y vuelta.
-  const vueltaData = await pedirJson(armarUrl({ apiKey, ruta, salidaStr, regresoStr, departureToken: idaConToken.departure_token }));
+  const vueltaData = await pedirJson(armarUrl({ apiKey, origen, destino, salidaStr, regresoStr, departureToken: idaConToken.departure_token }));
   if (vueltaData.error) throw new Error(`SerpApi (vuelta): ${vueltaData.error}`);
 
   const mejor = vueloMasBarato(vueltaData);
   if (!mejor) throw new Error('Sin resultados de ida y vuelta para esta ventana');
+  return mejor;
+}
 
-  return {
-    salida: salidaStr,
-    regreso: regresoStr,
-    ...mejor,
-    buscarUrl: armarBuscarUrl({
-      origenNombre: ruta.origenNombre,
-      destinoNombre: ruta.destinoNombre,
+async function googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy }) {
+  const salida = sumarDias(hoy, offsetDias);
+  const regreso = sumarDias(salida, estadiaDias);
+  const salidaStr = formatearFecha(salida);
+  const regresoStr = formatearFecha(regreso);
+
+  // Los códigos de área metropolitana (ej. BUE junta EZE+AEP, LON junta
+  // LHR+LGW+STN+LTN+LCY) traen más opciones y precios más baratos que un
+  // aeropuerto puntual — Google Flights arma sus combinados más baratos
+  // mezclando aeropuertos secundarios. Pero a veces SerpApi no devuelve
+  // resultados para un código de área en una ventana de fechas puntual; si
+  // eso pasa, reintentamos con los aeropuertos principales como respaldo
+  // en vez de perder la ventana entera.
+  try {
+    return {
       salida: salidaStr,
-      regreso: regresoStr
-    })
-  };
+      regreso: regresoStr,
+      ...(await buscarConCodigos({ apiKey, origen: ruta.origen, destino: ruta.destino, salidaStr, regresoStr })),
+      buscarUrl: armarBuscarUrl({
+        origenNombre: ruta.origenNombre,
+        destinoNombre: ruta.destinoNombre,
+        salida: salidaStr,
+        regreso: regresoStr
+      })
+    };
+  } catch (err) {
+    console.error(`  Códigos de área (${ruta.origen}/${ruta.destino}) fallaron (${err.message}), reintentando con aeropuertos puntuales (${ruta.origenRespaldo}/${ruta.destinoRespaldo})`);
+    return {
+      salida: salidaStr,
+      regreso: regresoStr,
+      ...(await buscarConCodigos({ apiKey, origen: ruta.origenRespaldo, destino: ruta.destinoRespaldo, salidaStr, regresoStr })),
+      buscarUrl: armarBuscarUrl({
+        origenNombre: ruta.origenNombre,
+        destinoNombre: ruta.destinoNombre,
+        salida: salidaStr,
+        regreso: regresoStr
+      })
+    };
+  }
 }
 
 /* --- Montaje final ---------------------------------------------------- */
