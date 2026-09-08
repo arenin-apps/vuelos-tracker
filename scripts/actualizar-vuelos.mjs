@@ -1,0 +1,162 @@
+/**
+ * Regenera data/vuelos.json consultando Google Flights a través de SerpApi.
+ *
+ * Los buscadores de vuelos (Google Flights, Skyscanner, Kayak, aerolíneas)
+ * no publican un JSON de catálogo como las tiendas de yerba mate, y bloquean
+ * el scraping directo. SerpApi hace de intermediario: entrega los mismos
+ * resultados que vería un usuario en Google Flights, ya en JSON.
+ *
+ * Uso:  node scripts/actualizar-vuelos.mjs
+ */
+
+import { writeFile, readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
+const SALIDA = join(RAIZ, 'data', 'vuelos.json');
+const MANUAL = join(RAIZ, 'data', 'manual.json');
+
+const UA = 'vuelos-tracker/1.0 (+https://arenin.uk)';
+
+/* ------------------------------------------------------------------ */
+
+async function pedirJson(url, intentos = 3) {
+  let ultimoError;
+  for (let n = 1; n <= intentos; n++) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 25000);
+      const res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' }, signal: ctrl.signal });
+      clearTimeout(t);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      ultimoError = err;
+      // Espera creciente: 3s, 6s. Siempre acaba, nunca da vueltas infinitas.
+      if (n < intentos) await new Promise(r => setTimeout(r, 3000 * n));
+    }
+  }
+  throw ultimoError;
+}
+
+function formatearFecha(fecha) {
+  return fecha.toISOString().slice(0, 10);
+}
+
+function sumarDias(fecha, dias) {
+  const copia = new Date(fecha);
+  copia.setUTCDate(copia.getUTCDate() + dias);
+  return copia;
+}
+
+// Link de búsqueda "manual" en Google Flights para esa fecha y ruta.
+// No hace falta otra llamada a la API: Google Flights entiende consultas
+// en lenguaje natural en el parámetro q.
+function armarBuscarUrl({ origenNombre, destinoNombre, salida, regreso }) {
+  const consulta = `Flights from ${origenNombre} to ${destinoNombre} on ${salida} through ${regreso}`;
+  return `https://www.google.com/travel/flights?q=${encodeURIComponent(consulta)}`;
+}
+
+function vueloMasBarato(data) {
+  const candidatos = [...(data.best_flights || []), ...(data.other_flights || [])];
+  if (!candidatos.length) return null;
+
+  let mejor = null;
+  for (const c of candidatos) {
+    const precio = Number(c.price);
+    if (!Number.isFinite(precio) || precio <= 0) continue;
+    if (!mejor || precio < mejor.price) mejor = c;
+  }
+  if (!mejor) return null;
+
+  const tramos = mejor.flights || [];
+  const aerolineas = [...new Set(tramos.map(t => t.airline).filter(Boolean))];
+
+  return {
+    precio: Number(mejor.price.toFixed(2)),
+    aerolinea: aerolineas.join(' / ') || 'Varias',
+    escalas: Math.max(0, tramos.length - 1),
+    duracionMin: Number(mejor.total_duration) || null
+  };
+}
+
+async function googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy }) {
+  const salida = sumarDias(hoy, offsetDias);
+  const regreso = sumarDias(salida, estadiaDias);
+  const salidaStr = formatearFecha(salida);
+  const regresoStr = formatearFecha(regreso);
+
+  const url = 'https://serpapi.com/search.json'
+    + '?engine=google_flights'
+    + `&departure_id=${ruta.origen}`
+    + `&arrival_id=${ruta.destino}`
+    + `&outbound_date=${salidaStr}`
+    + `&return_date=${regresoStr}`
+    + '&currency=GBP&hl=es&type=1'
+    + `&api_key=${apiKey}`;
+
+  const data = await pedirJson(url);
+  if (data.error) throw new Error(`SerpApi: ${data.error}`);
+
+  const mejor = vueloMasBarato(data);
+  if (!mejor) throw new Error('Sin resultados de vuelos para esta ventana');
+
+  return {
+    salida: salidaStr,
+    regreso: regresoStr,
+    ...mejor,
+    buscarUrl: armarBuscarUrl({
+      origenNombre: ruta.origenNombre,
+      destinoNombre: ruta.destinoNombre,
+      salida: salidaStr,
+      regreso: regresoStr
+    })
+  };
+}
+
+/* --- Montaje final ---------------------------------------------------- */
+
+async function main() {
+  const apiKey = process.env.SERPAPI_KEY;
+  if (!apiKey) {
+    console.error('Falta SERPAPI_KEY. No se puede consultar Google Flights, no se toca vuelos.json.');
+    process.exit(1);
+  }
+
+  const manual = JSON.parse(await readFile(MANUAL, 'utf8'));
+  const { estadiaDias, offsetsDias, ruta } = manual;
+  const hoy = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00Z');
+
+  const items = [];
+  const errores = [];
+
+  for (const offsetDias of offsetsDias) {
+    try {
+      const item = await googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy });
+      console.log(`Ventana +${offsetDias}d: £${item.precio} (${item.aerolinea}, ${item.escalas} escalas)`);
+      items.push(item);
+    } catch (err) {
+      console.error(`Ventana +${offsetDias}d falló: ${err.message}`);
+      errores.push(`+${offsetDias}d`);
+    }
+  }
+
+  if (!items.length) {
+    console.error('Ninguna ventana devolvió resultados. No se toca vuelos.json.');
+    process.exit(1);
+  }
+
+  const salida = {
+    actualizado: new Date().toISOString(),
+    fuentesConError: errores,
+    ruta: { origen: ruta.origen, destino: ruta.destino },
+    estadiaDias,
+    items
+  };
+
+  await writeFile(SALIDA, JSON.stringify(salida, null, 2) + '\n', 'utf8');
+  console.log(`Escritas ${items.length} ventanas en data/vuelos.json`);
+}
+
+main().catch(err => { console.error(err); process.exit(1); });
