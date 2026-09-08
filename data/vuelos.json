@@ -1,25 +1,25 @@
 {
-  "actualizado": "2026-09-08T17:42:54.086Z",
+  "actualizado": "2026-09-08T21:57:37.084Z",
   "fuentesConError": [],
   "ruta": {
-    "origen": "EZE",
-    "destino": "LHR"
+    "origen": "BUE",
+    "destino": "LON"
   },
   "estadiaDias": 14,
   "items": [
     {
       "salida": "2026-10-08",
       "regreso": "2026-10-22",
-      "precio": 1974,
-      "aerolinea": "KLM / Air France",
+      "precio": 1403,
+      "aerolinea": "Ethiopian",
       "escalas": 2,
-      "duracionMin": 1735,
+      "duracionMin": 1645,
       "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-10-08%20through%202026-10-22"
     },
     {
       "salida": "2026-11-22",
       "regreso": "2026-12-06",
-      "precio": 1182,
+      "precio": 1028,
       "aerolinea": "British Airways",
       "escalas": 1,
       "duracionMin": 1005,
@@ -28,7 +28,7 @@
     {
       "salida": "2027-01-06",
       "regreso": "2027-01-20",
-      "precio": 1609,
+      "precio": 1604,
       "aerolinea": "Vueling / LEVEL",
       "escalas": 1,
       "duracionMin": 1040,
