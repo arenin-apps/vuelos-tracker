@@ -18,7 +18,7 @@ Página estática que muestra el mejor precio de vuelo encontrado cada día para
 
 Google Flights, Skyscanner, Kayak y las webs de aerolíneas son buscadores dinámicos con protección anti-scraping fuerte — no hay un JSON de catálogo público como el de las tiendas de yerba mate. SerpApi (`engine=google_flights`) entrega los mismos resultados que vería un usuario en Google Flights, ya en JSON.
 
-Se usa `departure_id=BUE` y `arrival_id=LOND`, los códigos de ciudad-metro de Google Flights: cubren ambos aeropuertos de Buenos Aires (EZE/AEP) y los principales de Londres (LHR/LGW/STN/LTN/LCY) en una sola búsqueda por fecha.
+Se usa `departure_id=EZE` (Ezeiza) y `arrival_id=LHR` (Heathrow), los aeropuertos principales de cada ciudad. Se probó primero con los códigos de ciudad-metro (`BUE`/`LON`, que agrupan todos los aeropuertos de cada ciudad), pero para esta ruta SerpApi devolvía "hasn't returned any results for this query" — con los aeropuertos puntuales sí trae resultados.
 
 ## Probarlo en local
 
@@ -45,7 +45,7 @@ Usa el mismo `SERPAPI_KEY` que ya está configurado en `yerba-mate-tracker`.
 
 ## Presupuesto de cuota
 
-El free tier de SerpApi es 250 búsquedas/mes. Este robot hace 5 búsquedas al día (una por ventana de fecha) = ~150/mes. Sumado a las ~60/mes que ya usa `yerba-mate-tracker` para Amazon, el total mensual queda en ~210, con margen sobre el límite.
+El free tier de SerpApi es 250 búsquedas/mes. La búsqueda de ida y vuelta necesita **2 llamadas por ventana** (una para conseguir el `departure_token` de la ida, otra para el viaje completo con la vuelta — ver comentario en `googleFlights()`). Con 3 ventanas de fecha eso son 6 búsquedas al día = ~180/mes. Sumado a las ~60/mes que ya usa `yerba-mate-tracker` para Amazon, el total mensual queda en ~240, cerca del límite pero sin pasarse.
 
 ## Ajustes que vas a querer tocar
 
