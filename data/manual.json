@@ -1,7 +1,7 @@
 {
   "_comentario": "Ventanas de fecha a trackear (offset en días desde hoy para la salida) y duración fija del viaje. El robot busca ida y vuelta en cada ventana y guarda el precio más barato encontrado.",
   "estadiaDias": 14,
-  "offsetsDias": [21, 55, 91],
+  "offsetsDias": [30, 75, 120],
   "ruta": {
     "origen": "BUE",
     "destino": "LON",
