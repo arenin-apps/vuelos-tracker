@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vuelos Buenos Aires — Londres: precios actualizados a diario</title>
+<meta name="description" content="Mejor precio de vuelos Buenos Aires-Londres para los próximos meses, actualizado automáticamente cada día a partir de Google Flights.">
+<link rel="canonical" href="https://arenin.uk/vuelos-tracker/">
+<meta property="og:title" content="Vuelos Buenos Aires - Londres">
+<meta property="og:description" content="Comparador diario del mejor precio de vuelos entre Buenos Aires y Londres.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="vt" id="vt-app">
+
+  <header class="vt-hero">
+    <div class="vt-hero__text">
+      <p class="vt-eyebrow">Vuelos Tracker</p>
+      <h1 data-i18n="h1">Vuelos Buenos Aires ↔ Londres</h1>
+      <p class="vt-lede" data-i18n="lede">El mejor precio encontrado cada día para los próximos 2-3 meses, ida y vuelta con estadía de 14 días.</p>
+    </div>
+    <div class="vt-hero__side">
+      <button type="button" id="vt-lang" class="vt-lang" aria-label="Switch to English">English</button>
+      <div class="vt-status" id="vt-status">
+        <span class="vt-status__label" data-i18n="datos">Datos</span>
+        <p class="vt-status__date" id="vt-update-text">Cargando…</p>
+        <span class="vt-badge" id="vt-status-badge" data-state="loading">Comprobando</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="vt-main">
+    <section class="vt-card vt-card--flush">
+      <div class="vt-table-head">
+        <div>
+          <h2 class="vt-card__title" id="vt-table-title" data-i18n="titulo_tabla">Próximas ventanas de viaje</h2>
+          <p class="vt-note" data-i18n="sub_tabla">Cada fila es la búsqueda más barata encontrada para esa fecha de salida, con 14 días de estadía.</p>
+        </div>
+        <div class="vt-controls">
+          <label class="vt-switch">
+            <input type="checkbox" id="vt-solo-directos">
+            <span data-i18n="solo_directos">Solo vuelos directos</span>
+          </label>
+          <label class="vt-sort">
+            <span class="vt-label" data-i18n="ordenar_por">Ordenar por</span>
+            <select id="vt-sort" class="vt-select">
+              <option value="fecha-asc" data-i18n="orden_fecha">Fecha de salida</option>
+              <option value="price-asc" data-i18n="orden_asc">Precio menor a mayor</option>
+              <option value="price-desc" data-i18n="orden_desc">Precio mayor a menor</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="col_salida">Salida</th>
+              <th scope="col" data-i18n="col_regreso">Regreso</th>
+              <th scope="col" class="vt-num" data-i18n="col_precio">Precio</th>
+              <th scope="col" data-i18n="col_aerolinea">Aerolínea</th>
+              <th scope="col" data-i18n="col_escalas">Escalas</th>
+              <th scope="col" data-i18n="col_duracion">Duración</th>
+              <th scope="col"><span class="vt-sr">Enlace</span></th>
+            </tr>
+          </thead>
+          <tbody id="vt-tbody"></tbody>
+        </table>
+      </div>
+
+      <div id="vt-empty" class="vt-empty" hidden>
+        <p class="vt-empty__title" data-i18n="vacio_titulo">Ningún vuelo coincide con este filtro</p>
+        <p class="vt-note" data-i18n="vacio_texto">Probá desmarcar "Solo vuelos directos".</p>
+      </div>
+
+      <div id="vt-error" class="vt-error" hidden>
+        <p class="vt-empty__title" data-i18n="error_titulo">No se pudieron cargar los vuelos</p>
+        <p class="vt-note" id="vt-error-detail"></p>
+      </div>
+    </section>
+
+    <p class="vt-disclaimer" data-i18n="aviso">Precios orientativos obtenidos de Google Flights una vez al día. Pueden cambiar en cualquier momento: confirmá siempre el precio final en la aerolínea o agencia antes de comprar.</p>
+  </main>
+</div>
+
+<script src="assets/app.js" defer></script>
+</body>
+</html>
