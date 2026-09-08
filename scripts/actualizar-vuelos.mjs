@@ -95,19 +95,22 @@ function vueloMasBarato(data) {
 }
 
 // La API de Google Flights de SerpApi pide el viaje de ida y vuelta en DOS
-// pasos: primero se busca solo la ida (sin return_date) y cada resultado
-// trae un "departure_token"; despues se repite la misma busqueda agregando
-// ese token + la fecha de regreso, y ahi si vienen los precios del viaje
-// completo ida y vuelta. Pedir ambas fechas de una sola vez (un solo paso)
-// no tira error pero devuelve cero resultados.
-function armarUrlBase({ apiKey, ruta, salidaStr }) {
-  return 'https://serpapi.com/search.json'
+// pasos, pero OJO: las DOS llamadas necesitan outbound_date Y return_date
+// (si se omite return_date en el primer paso, tira error "return_date is
+// required if type is 1"). El primer paso devuelve un "departure_token" por
+// cada opción de ida; repitiendo el mismo pedido con ese token en el
+// segundo paso se obtiene el precio del viaje completo ida y vuelta.
+function armarUrl({ apiKey, ruta, salidaStr, regresoStr, departureToken }) {
+  let url = 'https://serpapi.com/search.json'
     + '?engine=google_flights'
     + `&departure_id=${ruta.origen}`
     + `&arrival_id=${ruta.destino}`
     + `&outbound_date=${salidaStr}`
+    + `&return_date=${regresoStr}`
     + '&currency=GBP&hl=es&type=1'
     + `&api_key=${apiKey}`;
+  if (departureToken) url += `&departure_token=${encodeURIComponent(departureToken)}`;
+  return url;
 }
 
 async function googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy }) {
@@ -115,20 +118,18 @@ async function googleFlights({ apiKey, ruta, offsetDias, estadiaDias, hoy }) {
   const regreso = sumarDias(salida, estadiaDias);
   const salidaStr = formatearFecha(salida);
   const regresoStr = formatearFecha(regreso);
-  const urlBase = armarUrlBase({ apiKey, ruta, salidaStr });
 
-  // Paso 1: solo ida, para conseguir un departure_token.
-  const idaData = await pedirJson(urlBase);
+  // Paso 1: búsqueda normal, para conseguir el departure_token de una opción de ida.
+  const idaData = await pedirJson(armarUrl({ apiKey, ruta, salidaStr, regresoStr }));
   if (idaData.error) throw new Error(`SerpApi (ida): ${idaData.error}`);
 
   const candidatosIda = [...(idaData.best_flights || []), ...(idaData.other_flights || [])];
   const idaConToken = candidatosIda.find(c => c.departure_token);
   if (!idaConToken) throw new Error('Sin vuelos de ida para esta ventana');
 
-  // Paso 2: mismo pedido + fecha de regreso + el token del paso 1, que ya
-  // devuelve el precio del viaje completo ida y vuelta.
-  const urlVuelta = `${urlBase}&return_date=${regresoStr}&departure_token=${encodeURIComponent(idaConToken.departure_token)}`;
-  const vueltaData = await pedirJson(urlVuelta);
+  // Paso 2: mismo pedido + el departure_token del paso 1, que ya devuelve
+  // el precio del viaje completo ida y vuelta.
+  const vueltaData = await pedirJson(armarUrl({ apiKey, ruta, salidaStr, regresoStr, departureToken: idaConToken.departure_token }));
   if (vueltaData.error) throw new Error(`SerpApi (vuelta): ${vueltaData.error}`);
 
   const mejor = vueloMasBarato(vueltaData);
