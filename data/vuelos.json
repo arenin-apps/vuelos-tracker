@@ -1,5 +1,5 @@
 {
-  "actualizado": "2026-09-08T16:37:48.988Z",
+  "actualizado": "2026-09-08T17:42:54.086Z",
   "fuentesConError": [],
   "ruta": {
     "origen": "EZE",
@@ -8,31 +8,31 @@
   "estadiaDias": 14,
   "items": [
     {
-      "salida": "2026-09-29",
-      "regreso": "2026-10-13",
-      "precio": 1313,
-      "aerolinea": "Air France",
-      "escalas": 1,
-      "duracionMin": 1175,
-      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-09-29%20through%202026-10-13"
+      "salida": "2026-10-08",
+      "regreso": "2026-10-22",
+      "precio": 1974,
+      "aerolinea": "KLM / Air France",
+      "escalas": 2,
+      "duracionMin": 1735,
+      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-10-08%20through%202026-10-22"
     },
     {
-      "salida": "2026-11-02",
-      "regreso": "2026-11-16",
-      "precio": 911,
-      "aerolinea": "ITA",
+      "salida": "2026-11-22",
+      "regreso": "2026-12-06",
+      "precio": 1182,
+      "aerolinea": "British Airways",
       "escalas": 1,
-      "duracionMin": 1825,
-      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-11-02%20through%202026-11-16"
+      "duracionMin": 1005,
+      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-11-22%20through%202026-12-06"
     },
     {
-      "salida": "2026-12-08",
-      "regreso": "2026-12-22",
-      "precio": 1064,
-      "aerolinea": "Iberia",
+      "salida": "2027-01-06",
+      "regreso": "2027-01-20",
+      "precio": 1609,
+      "aerolinea": "Vueling / LEVEL",
       "escalas": 1,
-      "duracionMin": 1720,
-      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202026-12-08%20through%202026-12-22"
+      "duracionMin": 1040,
+      "buscarUrl": "https://www.google.com/travel/flights?q=Flights%20from%20Buenos%20Aires%20to%20Londres%20on%202027-01-06%20through%202027-01-20"
     }
   ]
 }
